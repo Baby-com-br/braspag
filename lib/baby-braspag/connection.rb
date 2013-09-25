@@ -4,7 +4,7 @@ module Braspag
 
     PRODUCTION_URL = "https://transaction.pagador.com.br"
     HOMOLOGATION_URL = "https://homologacao.pagador.com.br"
-    
+
     PROTECTED_CARD_PRODUCTION_URL = "https://cartaoprotegido.braspag.com.br/Services"
     PROTECTED_CARD_HOMOLOGATION_URL = "https://homologacao.braspag.com.br/services/testenvironment"
 
@@ -20,18 +20,23 @@ module Braspag
 
       @crypto_key  = @options["crypto_key"]
       @crypto_url  = @options["crypto_url"]
-      @environment = @options["environment"] == 'production' ? 'production' : 'homologation'
+      @environment = @options["environment"]
 
-      @braspag_url = self.production? ? PRODUCTION_URL : HOMOLOGATION_URL
-      @protected_card_url = self.production? ? PROTECTED_CARD_PRODUCTION_URL : PROTECTED_CARD_HOMOLOGATION_URL
+      @braspag_url = @options["pagador_url"] || default_env_configuration[:pagador][@environment]
+      @protected_card_url = @options["protected_card_url"] || default_env_configuration[:protected_card][@environment]
     end
 
-    def production?
-      @environment == 'production'
-    end
-
-    def homologation?
-      @environment == 'homologation'
+    def default_env_configuration
+      {
+        :pagador => {
+          "production"   => PRODUCTION_URL,
+          "homologation" => HOMOLOGATION_URL
+        },
+        :protected_card  => {
+          "production"   => PROTECTED_CARD_PRODUCTION_URL,
+          "homologation" => PROTECTED_CARD_HOMOLOGATION_URL
+        }
+      }
     end
   end
 end
